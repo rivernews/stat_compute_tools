@@ -4,10 +4,14 @@
 # Xsample_mean = 4.1
 # n = 25
 
-def computing_z_proportion(HypothesisProportion, SampleProportion, n):
+def computing_z_proportion(HypothesisProportion, SampleProportionExpression, n):
     p = HypothesisProportion
     q = 1 - HypothesisProportion
-    pHat = SampleProportion
+    if '/' in SampleProportionExpression:
+        param = [ float(x) for x in SampleProportionExpression.split("/") ]
+        pHat = param[0] / param[1]
+    else:
+        pHat = float(SampleProportionExpression)
     z_stat = (pHat - p) / (p*q/n)**(0.5)
     print(z_stat)
 
@@ -37,9 +41,9 @@ def user_interface():
         computing_z(Xsample_mean, hypo_mean, n)
     elif user_input == "5" or user_input == "z_stat_proportion":
         HypothesisProportion = float(input("Give Hypothesis i.e. population proportion: "))
-        SampleProportion = float(input("Give sample proportion: "))
+        SampleProportionExpression = (input("Give sample proportion (you can use divider as a/b): "))
         n = int(input("Give sample size: "))
-        computing_z_proportion(HypothesisProportion, SampleProportion, n)
+        computing_z_proportion(HypothesisProportion, SampleProportionExpression, n)
     else:
         print("look up table no gonna compute for ya!")
 
