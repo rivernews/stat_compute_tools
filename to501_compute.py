@@ -44,6 +44,12 @@ def user_interface():
         SampleProportionExpression = (input("Give sample proportion (you can use divider as a/b): "))
         n = int(input("Give sample size: "))
         computing_z_proportion(HypothesisProportion, SampleProportionExpression, n)
+    elif user_input == "2" or user_input == "z":
+        print('''look up z table. If given alpha:\n
+        1. determine either upper, lower or two tail test. e.g., if \n
+        2. ... \n
+        check out this website: http://sixsigmastudyguide.com/z-scores-z-table-z-transformations/
+        ''')
     else:
         print("look up table no gonna compute for ya!")
 
