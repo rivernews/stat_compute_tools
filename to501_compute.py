@@ -25,7 +25,7 @@ def computing_t(Xsample_mean, hypo_mean, n):
     SDsample = float(input("Give sample SD: "))
     t_stat_observe = (Xsample_mean - hypo_mean) / ( SDsample/((n)**(0.5)) )
     print (t_stat_observe)
-
+    
 def user_interface():
     user_input = input("What do you want to compute?\n(1:t | 2:z | 3:t_stat | 4:z_stat | 5: z_stat_proportion):")
     # t-stat
@@ -54,3 +54,12 @@ def user_interface():
         print("look up table no gonna compute for ya!")
 
 user_interface()
+
+def reg_predict(coe_list, value_list):
+    # print("list lengths are ", len(coe_list), len(value_list))
+    interm_sum = 0
+    for i in range(0, len(coe_list)):
+        interm_sum += coe_list[i] * value_list[i]
+    print(interm_sum * 1000)
+
+# reg_predict( [ 60, 0.068, -2.5], [1, 2500, 10])
