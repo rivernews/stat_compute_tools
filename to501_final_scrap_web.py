@@ -40,10 +40,14 @@ def getFieldDictionary(fields_html):
 
 class Player():
     # get column name
-    def __init__(self, player_html, fieldClassDictionary):
-        self.fieldClassDictionary = fieldClassDictionary
-        self.club = self.getPlayerField("Club",player_html )
-        self.salary = self.getPlayerField("Base Salary", player_html )
+    def __init__(self, club, salary):
+        self.club = club
+        self.salary = salary
+
+    @classmethod
+    def fromSoup(cls, player_html, fieldClassDictionary):
+        cls.fieldClassDictionary = fieldClassDictionary
+        return cls(cls.getPlayerField(cls, "Club",player_html ), cls.getPlayerField(cls, "Base Salary", player_html ))
 
     def getPlayerField(self, fieldName, player_html):
         className = self.fieldClassDictionary[fieldName]
@@ -79,11 +83,12 @@ def getClubMeanSalary(club_abbr, players):
             '# of dp': len(dp_salaries)
         }
     except:
+        print("oops! empty")
         print("club abbr =", club_abbr)
         print("club_all_salaries =", club_all_salaries)
         exit()
 
-def get_players():
+def get_players_by_web():
     soup_html = readHtmlToSoup()
     fields_html = soup_html['fields_html']
     players_html = soup_html['players_html']
@@ -92,7 +97,7 @@ def get_players():
 
     players = []
     for player_html in players_html:
-        players.append( Player(player_html, fieldClassDictionary) )
+        players.append( Player.fromSoup(player_html, fieldClassDictionary) )
     
     return players
 

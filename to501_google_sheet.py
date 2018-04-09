@@ -72,22 +72,31 @@ def readJsonToDict(fileName):
         d = json.load(file)
     return d
 
+def check_data_have_req_teams(data_all_club_set, data_club_name_type, club_sequence):
+    for club in club_sequence:
+        # change to data's form - if data is abbr, change to abbr
+        if data_club_name_type == 'abbr':
+            req_club_abbr = abbr_dictionary[ club ]
+        else:
+            req_club_abbr = club
+        if req_club_abbr not in data_all_club_set:
+            print("Require club (abbr)", req_club_abbr, "but no player in data belongs to this club.")
+            exit()
 
-def main():
-    service = settle_all_google_stuff()
 
-    # target spreadsheet
-    spreadsheetId = '1JGY4E7BzhetFN5EQbHmUiwKnB1t_x2DzNnGBsPjE1Zw'
-    rangeName = 'Salary Avg!A42:N63'
+# sheet data from: https://www.kaggle.com/crawford/us-major-league-soccer-salaries/data
+def get_all_players_by_sheet(year, service, data_club_name_type):
+    all_players = []
+    data_all_club_set = {}
+    global club_sequence
 
-    # load local data
-    club_sequence_2017 = []
-    abbr_dictionary = readJsonToDict("abbr.json")
-    players_2017 = get_players()
-
+    # API read 2016
     '''
     API read operation
     '''
+    # target spreadsheet
+    spreadsheetId = '1JGY4E7BzhetFN5EQbHmUiwKnB1t_x2DzNnGBsPjE1Zw'
+    rangeName = year + '!A2:F'
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
@@ -95,32 +104,94 @@ def main():
         print('No data found.')
     else:
         for row in values:
-            club_sequence_2017.append( row[2] )
+            all_players.append( Player(row[0] , row[4]) )
+            if row[0] not in data_all_club_set:
+                data_all_club_set[ row[0] ] = ""
 
-    # organizing acquired data
+    check_data_have_req_teams(data_all_club_set, data_club_name_type, club_sequence )
+
+    return all_players
+
+def get_all_teams_statistics(club_sequence, all_players):
     team_salary_avg = []
     dp_num = []
+    all_num = []
     dp_salary_avg = []
     club_abbrs = []
-    for club in club_sequence_2017:
-        salary_data = getClubMeanSalary( abbr_dictionary[club] , players_2017)
+    for club in club_sequence:
+        # dependency 1: abbrv should exist in abbr.json
+        # dependency 2: must have that club players, using that abbrv. *** players can have more club than our abbr.json
+        salary_data = getClubMeanSalary( abbr_dictionary[club] , all_players)
+        
         team_salary_avg.append(salary_data['all'])
         dp_num.append(salary_data['# of dp'])
+        all_num.append(salary_data['# of all'])
         dp_salary_avg.append(salary_data['dp'])
         club_abbrs.append(abbr_dictionary[club])
+    return {
+        'club_abbrs': club_abbrs,
+        'team_salary_avg': team_salary_avg,
+        'dp_num': dp_num,
+        "all_num": all_num,
+        'dp_salary_avg': dp_salary_avg
+    }
 
+def main():
+    # manually edit variable
+    global YEAR 
+    YEAR = '2015'
+    global data_club_name_type
+    data_club_name_type = 'abbr'
+
+    # global variable
+    service = settle_all_google_stuff()
+    global abbr_dictionary 
+    abbr_dictionary = readJsonToDict("abbr.json")
+    global range_by_year 
+    range_by_year = {
+        "2017": ["42", "63"],
+        "2016": [ "22", "41"],
+        "2015": ["2", "21"],
+    }
+    global club_sequence 
+    club_sequence = []
+    
+    '''
+    API read operation
+    '''
+    # target spreadsheet
+    spreadsheetId = '1JGY4E7BzhetFN5EQbHmUiwKnB1t_x2DzNnGBsPjE1Zw'
+    rangeName = 'Salary Avg!A' + range_by_year[YEAR][0] +  ':O' + range_by_year[YEAR][1]
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    if not values:
+        print('No data found.')
+    else:
+        for row in values:
+            club_sequence.append( row[2] )
+
+    # organizing acquired data
+    if YEAR == '2017':
+        all_players = get_players_by_web()
+        statistics = get_all_teams_statistics(club_sequence, all_players)
+    else:
+        all_players = get_all_players_by_sheet(YEAR, service, data_club_name_type)
+        statistics = get_all_teams_statistics(club_sequence, all_players)
+    
     '''
     API write operation
     '''
-    print(club_abbrs)
     data = []
     data.append({
-        'range': 'Salary Avg!D42:G63',
+        'range': 'Salary Avg!D'+ range_by_year[YEAR][0] +':H' + range_by_year[YEAR][1],
         'values': [
-            club_abbrs,
-            team_salary_avg,
-            dp_num,
-            dp_salary_avg
+            statistics['club_abbrs'],
+            
+            statistics['all_num'],
+            statistics['team_salary_avg'],
+            statistics['dp_num'],
+            statistics['dp_salary_avg']
         ],
         'majorDimension': 'COLUMNS'
     })
@@ -131,11 +202,6 @@ def main():
     result = service.spreadsheets().values().batchUpdate(
         spreadsheetId=spreadsheetId, body=body).execute()
     
-
-    
-    
-    
-        
 
 
 if __name__ == '__main__':
