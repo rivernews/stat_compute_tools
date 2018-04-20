@@ -1,0 +1,34 @@
+Note for first half semester
+W07 Inference: Sample Distribution
+Estimating SD by range ( a very rough estimate)
+
+Finding sample size n
+Recall , notice x- is the error, let it be E. 
+Recall confidence interval = mean +/- z*(/n) = mean +/- error = mean +/- E, thus
+n=. z=1.96 for 95% confidence.
+W08: Hypothesis Testing
+Regression
+Best model
+All X passed test F larger
+Correlation
+Can only do in simple reg, correlation of X,Y
+Use multiple R && sign of coefficient
+Multiple R VS R Square
+Multiple R = root(R Square)
+Correlation of Ybar and Y, i.e., predicted Ys and observed Ys
+R Square = SSReg/SSyy == multiple determination (R^2)
+What proportion did the model predict correctly
+~ var(predicted Y , mean Y) / var(observed Y, mean Y)
+Always positive. In simple reg, R square = (correlation)^2
+Confidence interval for X coefficient (Q15)
++/- t_value * std_error
+SD of Y = SStotal/ dftotal, df total = n(observation) - 1
+
+
+General
+Look at all options becasue option w/ more detail info may show up and is the correct answer!
+Q21 Compounded Average Growth Rate
+Use (Yt+1 - Yt) / Yt, 
+t +4 for quarterly model
+t + 12 for yearly model
+t + 1 for monthly model

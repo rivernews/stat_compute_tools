@@ -3,17 +3,21 @@ import re
 import statistics
 from bs4 import BeautifulSoup
 
+import numpy as np
+
 # excel | get all abbrev
 
 # web | for each team, get all player data (at least salary)
 '''
 requests doc: http://docs.python-requests.org/en/master/user/quickstart/
 '''
-def scrapWebData():
-    url = 'https://mlsplayers.org/salary-guide/'
+def scrapWebData(fileName, url):
+    # url = 'https://mlsplayers.org/salary-guide/'
     r = requests.get(url)
-    with open("mls_page.html", "w") as file:
-        file.write(r.text)
+    # fileName = 'mls_page.html'
+    soup = BeautifulSoup(r.text, 'html.parser')
+    with open(fileName, "w") as file:
+        file.write(soup.prettify())
 
 '''
 beautiful soup doc: https://www.crummy.com/software/BeautifulSoup/bs4/doc/#problems-after-installation
@@ -101,11 +105,28 @@ def get_players_by_web():
     
     return players
 
-def statistics_from_web_scraper():
-    pass
-    
+def average_smoothing(weights, data):
+    weights = np.array(weights)
+    data = np.array(data)
+    weighted_sum = np.sum( weights * data )
+    weighted_avg = weighted_sum / np.sum(weights)
+    return weighted_avg
+
+def compute():
+    [228, 54,  191]
+    y_t_1 = 191
+    y_t_2 = 54
+    y = -0.10434 * y_t_1 +  0.962669 * y_t_2 + 4.85094
+    print(y)
 # python | compute avg
 
+
+
 if __name__ == '__main__':
-    players = get_players()
-    print( getClubMeanSalary('NYCFC', players) )
+    # players = get_players()
+    # print( getClubMeanSalary('NYCFC', players) )
+    # scrapWebData( 'messy.html', 'https://www.couchsurfing.com/members/hosts?utf8=%E2%9C%93&search_type=host&search_query=newyork'  )
+    # array_computation()
+
+    from word_cloud import *
+    word_cloud('haha.txt', '')
